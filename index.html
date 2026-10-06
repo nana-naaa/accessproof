@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AccessProof – Council Review Integrity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f8f6; --card:#ffffff; --soft:#eef4f2; --line:#d6e3df;
+  --ink:#15302c; --muted:#58716c; --teal:#0e3b36; --teal-2:#1e6b5f; --mint:#c6ddd9; --lime:#e9ec9c; --lime-ink:#2e3009;
+  --alert:#a93a33; --alert-soft:#fbe8e6; --warn:#8a5a0e; --warn-soft:#fcefd4; --good:#1e6b5f; --good-soft:#e1efeb;
+  --shadow:0 1px 0 var(--line), 0 14px 34px rgba(14,59,54,.08);
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0c1917; --card:#132522; --soft:#1a302c; --line:#29423e; --ink:#e6efed; --muted:#9db3ae; --teal:#cfe6e1; --teal-2:#8fd0c2; --mint:#18332f;
+  --alert:#f09a92; --alert-soft:#3a201e; --warn:#f0c374; --warn-soft:#352812; --good:#8fd0c2; --good-soft:#173833;
+}}
+:root[data-theme="dark"]{
+  --bg:#0c1917; --card:#132522; --soft:#1a302c; --line:#29423e; --ink:#e6efed; --muted:#9db3ae; --teal:#cfe6e1; --teal-2:#8fd0c2; --mint:#18332f;
+  --alert:#f09a92; --alert-soft:#3a201e; --warn:#f0c374; --warn-soft:#352812; --good:#8fd0c2; --good-soft:#173833;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px); height:100%}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:1.55}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #d4b400;outline-offset:2px;border-radius:8px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 clamp(16px,3vw,32px)}
+
+/* header */
+header.site{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;padding-top:env(safe-area-inset-top,0px)}
+.site .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px;height:76px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--teal)}
+.logo .dot{width:32px;height:32px;border-radius:50%;background:var(--lime);display:grid;place-items:center;color:#0e3b36;font-weight:700}
+.logo b{font-size:24px;letter-spacing:-.4px}
+.logo small{display:block;font-size:12px;color:var(--muted);font-weight:500;line-height:1}
+nav.main{display:flex;gap:6px}
+nav.main button{border:0;background:transparent;padding:9px 14px;border-radius:999px;color:var(--ink)}
+nav.main button[aria-current="page"]{background:var(--soft);font-weight:600;color:var(--teal)}
+.hdr-right{display:flex;gap:10px;align-items:center}
+.btn-dark{border:0;background:#0e3b36;color:#fff;border-radius:999px;padding:10px 18px;font-weight:500}
+.btn-line{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:9px 16px}
+.bell{position:relative;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);display:grid;place-items:center}
+.bell::after{content:"";position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:50%;background:#d0564c}
+@media (max-width:980px){nav.main{display:none}}
+
+/* hero */
+.hero{background:var(--mint);padding:48px 0 96px}
+.hero .wrap{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:end}
+.kicker{display:flex;align-items:center;gap:10px;font-weight:600;font-size:13px;letter-spacing:1.5px;color:var(--teal)}
+.kicker::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--teal)}
+.hero h1{margin:10px 0 0;font-size:clamp(36px,5vw,60px);line-height:1.05;letter-spacing:-1.2px;color:var(--teal)}
+.hero p{margin:0;color:var(--teal);font-size:17px;max-width:48ch}
+.hero .meta{margin-top:12px;font-weight:600;font-size:14px}
+@media (max-width:860px){.hero .wrap{grid-template-columns:1fr}}
+
+/* tabs */
+.tabbar{margin-top:-58px;position:relative;z-index:2}
+.tabs{display:inline-flex;gap:6px;background:var(--card);padding:6px;border-radius:999px;box-shadow:var(--shadow);flex-wrap:wrap}
+.tabs button{border:0;background:transparent;border-radius:999px;padding:11px 22px;font-weight:600;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:#0e3b36;color:#fff}
+.tabhint{margin-left:14px;color:var(--muted);font-size:13px}
+
+main.wrap{padding-top:36px;padding-bottom:64px}
+.page{display:none}.page.active{display:block}
+.grid{display:grid;gap:20px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g2{grid-template-columns:1.35fr 1fr}
+.g2e{grid-template-columns:1fr 1fr}
+@media (max-width:1040px){.g4{grid-template-columns:repeat(2,1fr)}.g2,.g2e{grid-template-columns:1fr}}
+@media (max-width:560px){.g4{grid-template-columns:1fr}}
+.card{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:24px}
+.card h2{margin:0;font-size:19px;color:var(--teal)}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.card-sub{margin:2px 0 0;color:var(--muted);font-size:13px}
+.link{border:0;background:none;color:var(--teal-2);font-weight:600;padding:4px}
+.stack{display:flex;flex-direction:column;gap:20px;margin-top:20px}
+
+.metric .ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--good-soft);font-size:18px;margin-bottom:12px}
+.metric.alert .ico{background:var(--alert-soft)}.metric.warn .ico{background:var(--warn-soft)}
+.metric h3{margin:0;font-size:14px;font-weight:600;color:var(--muted)}
+.metric strong{display:block;font-size:40px;line-height:1.1;color:var(--teal);margin:4px 0}
+.metric p{margin:0;font-size:13px;color:var(--muted)}
+.delta{display:inline-block;margin-top:8px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--good-soft);color:var(--good)}
+.delta.red{background:var(--alert-soft);color:var(--alert)}
+
+.brief{background:#0e3b36;color:#f2f6f4;border-radius:22px;padding:24px 28px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.brief .lbl{margin:0 0 6px;font-size:12px;font-weight:600;letter-spacing:1.5px;color:#e9ec9c}
+.brief p{margin:0;font-size:16px;max-width:70ch}
+.brief b{color:#e9ec9c}
+.brief .btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn-lime{border:0;background:var(--lime);color:var(--lime-ink);border-radius:999px;padding:11px 20px;font-weight:600}
+.btn-ghost-dark{border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:999px;padding:10px 18px}
+
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:12px;font-weight:600;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr.row{cursor:pointer}
+tr.row:hover td{background:var(--soft)}
+.venue{display:flex;gap:12px;align-items:center}
+.thumb{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#a9cfc5,#dcece8 60%,#94b9b0);flex:none}
+.venue b{display:block;font-size:14px}.venue span{font-size:12px;color:var(--muted)}
+.tag{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.tag.alert{background:var(--alert-soft);color:var(--alert)}.tag.warn{background:var(--warn-soft);color:var(--warn)}.tag.good{background:var(--good-soft);color:var(--good)}
+.score{font-weight:700;font-size:18px;color:var(--teal)}
+.open{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-size:13px}
+
+.map{position:relative;height:230px;border-radius:16px;overflow:hidden;background:var(--soft);border:1px solid var(--line)}
+.map svg{position:absolute;inset:0;width:100%;height:100%}
+.hot{position:absolute;background:#0e3b36;color:#fff;border-radius:12px;padding:6px 12px;font-size:12px;font-weight:600;border:0;box-shadow:0 6px 16px rgba(14,59,54,.25)}
+.hot small{display:block;color:#e9ec9c;font-weight:500}
+.chart svg{width:100%;height:auto;display:block}
+.actions-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+.feed li{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);list-style:none;align-items:center}
+.feed{margin:0;padding:0}
+.feed .t{font-size:12px;color:var(--muted)}
+
+.insight{background:var(--good-soft);border-radius:16px;padding:16px 18px;margin-top:16px;color:var(--ink)}
+.next{border:2px dashed var(--line);border-radius:16px;padding:20px;text-align:left}
+.next b{color:var(--teal)}
+
+.act{display:flex;flex-direction:column;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:18px;padding:20px;background:var(--card);text-align:left}
+.act .em{font-size:22px}
+.act h3{margin:0;font-size:16px;color:var(--teal)}
+.act p{margin:0;font-size:13px;color:var(--muted)}
+.tools{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tools button{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:14px;font-weight:600;text-align:left}
+
+/* drawer + modal */
+.overlay{position:fixed;inset:0;background:rgba(8,24,22,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+.overlay.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(460px,100%);background:var(--card);z-index:50;transform:translateX(100%);transition:transform .25s ease;padding:calc(28px + env(safe-area-inset-top,0px)) 28px calc(28px + env(safe-area-inset-bottom,0px));overflow-y:auto;box-shadow:-20px 0 40px rgba(0,0,0,.15)}
+.drawer.show{transform:none}
+.drawer h2{margin:4px 0 0;font-size:26px;color:var(--teal)}
+.x{position:absolute;top:calc(20px + env(safe-area-inset-top,0px));right:20px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card)}
+.sig{padding:14px 0;border-top:1px solid var(--line)}
+.sig strong{display:block;font-size:14px;color:var(--teal)}
+.sig span{font-size:14px;color:var(--muted)}
+.drawer .btns{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.b-approve{border:0;background:#0e3b36;color:#fff;border-radius:14px;padding:13px;font-weight:600}
+.b-request{border:0;background:var(--lime);color:var(--lime-ink);border-radius:14px;padding:13px;font-weight:600}
+.b-flag{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px;font-weight:600}
+.modal{position:fixed;left:50%;top:50%;width:min(640px,calc(100% - 32px));max-height:calc(100% - 48px);overflow-y:auto;transform:translate(-50%,-46%);opacity:0;pointer-events:none;transition:all .2s;background:var(--card);border-radius:24px;padding:28px;z-index:50;box-shadow:0 30px 60px rgba(0,0,0,.25)}
+.modal.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
+.modal h2{margin:0;font-size:24px;color:var(--teal)}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:18px 0}
+.seg button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;font-weight:500}
+.seg button[aria-pressed="true"]{background:#0e3b36;border-color:#0e3b36;color:#fff}
+label.f{display:block;font-size:13px;font-weight:600;margin:14px 0 6px;color:var(--muted)}
+.modal input,.modal textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--card)}
+.modal textarea{min-height:170px;resize:vertical}
+.langrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.send{width:100%;border:0;background:#0e3b36;color:#fff;border-radius:14px;padding:14px;font-weight:600;margin-top:16px}
+.note{font-size:12px;color:var(--muted);background:var(--soft);border-radius:12px;padding:12px;margin-top:14px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#0e3b36;color:#fff;padding:12px 18px;border-radius:14px;font-size:14px;font-weight:500;z-index:60;box-shadow:0 14px 30px rgba(0,0,0,.25);max-width:90vw;text-align:center}
+footer{color:var(--muted);font-size:13px;text-align:center;padding:0 16px 40px}
+@media (prefers-reduced-motion:reduce){.drawer,.modal,.overlay{transition:none}}
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="logo" href="#" aria-label="AccessProof home"><span class="dot" aria-hidden="true">✓</span><span><b>AccessProof</b><small>Council console · EnAccess Maps</small></span></a>
+    <nav class="main" aria-label="Main">
+      <button type="button" data-nav>Map</button>
+      <button type="button" data-nav>Analytics</button>
+      <button type="button" data-nav>Community</button>
+      <button type="button" data-nav aria-current="page">Council</button>
+    </nav>
+    <div class="hdr-right">
+      <select class="btn-line" aria-label="Date range" id="range"><option>This week</option><option>Last week</option><option>This month</option></select>
+      <button class="bell" type="button" aria-label="Notifications, new alerts" onclick="toast('3 new critical flags since this morning.')">🔔</button>
+      <button class="btn-dark" type="button" id="themeBtn">Dark mode</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <div class="kicker">REVIEW INTEGRITY</div>
+      <h1>Monitor, verify, build trust</h1>
+    </div>
+    <div>
+      <p>AI review integrity for accessibility data your community can rely on. Live data from EnAccess Maps.</p>
+      <p class="meta">3,482 reviews in scope this week · 47 critical flags</p>
+    </div>
+  </div>
+</section>
+
+<div class="wrap tabbar">
+  <div class="tabs" role="tablist" aria-label="Review integrity views">
+    <button role="tab" aria-selected="true" aria-controls="page-truth" id="tab-truth" data-page="truth">Truth</button>
+    <button role="tab" aria-selected="false" aria-controls="page-pulse" id="tab-pulse" data-page="pulse" tabindex="-1">Pulse</button>
+    <button role="tab" aria-selected="false" aria-controls="page-trajectory" id="tab-trajectory" data-page="trajectory" tabindex="-1">Trajectory</button>
+    <button role="tab" aria-selected="false" aria-controls="page-actions" id="tab-actions" data-page="actions" tabindex="-1">Actions</button>
+  </div>
+</div>
+
+<main class="wrap">
+  <!-- TRUTH -->
+  <section class="page active" id="page-truth" role="tabpanel" aria-labelledby="tab-truth">
+    <div class="grid g4">
+      <div class="card metric"><div class="ico" aria-hidden="true">📝</div><h3>Reviews in scope</h3><strong>3,482</strong><p>Accessibility reviews monitored this week.</p></div>
+      <div class="card metric"><div class="ico" aria-hidden="true">🛡️</div><h3>Avg trust score</h3><strong>84</strong><p>Average AI trust score out of 100.</p><span class="delta">+3 vs last week</span></div>
+      <div class="card metric alert"><div class="ico" aria-hidden="true">⚠️</div><h3>Critical flags</h3><strong>47</strong><p>Need manual verification or follow-up.</p><span class="delta red">1.3% of total</span></div>
+      <div class="card metric warn"><div class="ico" aria-hidden="true">🖼️</div><h3>Photo match rate</h3><strong>76%</strong><p>Photos that support what the review claims.</p><span class="delta">+6% vs last week</span></div>
+    </div>
+
+    <div class="brief" style="margin-top:20px">
+      <div><p class="lbl">AI WEEKLY BRIEF</p><p>268 new reviews this week, average trust <b>84/100</b>. <b>12 reviews</b> need human verification, mostly duplicate phrasing around Chatswood CBD.</p></div>
+      <div class="btns"><button class="btn-lime" type="button" onclick="toast('Weekly report generated (demo).')">Generate report</button><button class="btn-ghost-dark" type="button" onclick="toast('CSV export started (demo).')">Export CSV</button></div>
+    </div>
+
+    <div class="grid g2" style="margin-top:20px">
+      <div class="card">
+        <div class="card-head"><div><h2>Critical &amp; at-risk reviews</h2><p class="card-sub">Select a review to see why it was flagged</p></div><button class="link" type="button" onclick="toast('Showing all 47 flagged reviews in a future version.')">View all 47</button></div>
+        <div class="tbl"><table>
+          <thead><tr><th>Venue</th><th>Issue</th><th>Trust</th><th><span class="sr" style="position:absolute;left:-9999px">Open</span></th></tr></thead>
+          <tbody id="reviewRows"></tbody>
+        </table></div>
+        <p class="card-sub" style="margin-top:24px">Act on flagged reviews</p>
+    <div class="actions-row" style="margin-top:10px">
+      <button class="btn-line" type="button" onclick="toast('CSV export started (demo).')">⬇ Export CSV</button>
+      <button class="btn-line" type="button" onclick="toast('Map layer opened (demo).')">🗺 View map</button>
+      <button class="btn-dark" type="button" onclick="openSheet('clarification')">✉ Bulk verification</button>
+      <button class="btn-dark" type="button" onclick="openSheet('survey')">📣 Bulk outreach</button>
+    </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div class="card">
+          <div class="card-head"><div><h2>Truth radar</h2><p class="card-sub">Suspicious review hotspots</p></div><button class="link" type="button" onclick="toast('Full map view opening in a future version.')">View map</button></div>
+          <div class="map">
+            <svg viewBox="0 0 400 230" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M0 150 C80 130 120 170 200 140 S330 110 400 130" stroke="var(--line)" stroke-width="10" fill="none"/>
+              <path d="M150 0 L175 230" stroke="var(--line)" stroke-width="8"/>
+              <path d="M290 0 L270 230" stroke="var(--line)" stroke-width="6"/>
+              <path d="M0 60 L400 80" stroke="var(--line)" stroke-width="5"/>
+              <circle cx="250" cy="70" r="46" fill="#a93a33" opacity=".14"/><circle cx="95" cy="175" r="30" fill="#8a5a0e" opacity=".14"/><circle cx="185" cy="185" r="36" fill="#8a5a0e" opacity=".14"/>
+            </svg>
+            <button class="hot" style="left:56%;top:14%" type="button" onclick="toast('Chatswood CBD: 12 flags, mostly duplicate text.')">Chatswood CBD<small>12 flags</small></button>
+            <button class="hot" style="left:4%;top:64%" type="button" onclick="toast('West Chatswood: 5 flags.')">West Chatswood<small>5 flags</small></button>
+            <button class="hot" style="left:40%;top:70%" type="button" onclick="toast('Artarmon: 7 flags.')">Artarmon<small>7 flags</small></button>
+          </div>
+        </div>
+        <div class="card chart">
+          <div class="card-head"><div><h2>Trust score trend</h2><p class="card-sub">Average trust score by week</p></div></div>
+          <svg viewBox="0 0 400 160" role="img" aria-label="Average trust score by week: 72, 78, 81, 83, 84">
+            <g font-family="Poppins, Arial" font-size="12" text-anchor="middle">
+              <rect x="30" y="54" width="44" height="76" rx="8" fill="var(--mint)"/><text x="52" y="46" fill="var(--teal)" font-weight="700">72</text><text x="52" y="150" fill="var(--muted)">W1</text>
+              <rect x="105" y="40" width="44" height="90" rx="8" fill="var(--mint)"/><text x="127" y="32" fill="var(--teal)" font-weight="700">78</text><text x="127" y="150" fill="var(--muted)">W2</text>
+              <rect x="180" y="33" width="44" height="97" rx="8" fill="var(--mint)"/><text x="202" y="25" fill="var(--teal)" font-weight="700">81</text><text x="202" y="150" fill="var(--muted)">W3</text>
+              <rect x="255" y="28" width="44" height="102" rx="8" fill="var(--mint)"/><text x="277" y="20" fill="var(--teal)" font-weight="700">83</text><text x="277" y="150" fill="var(--muted)">W4</text>
+              <rect x="330" y="26" width="44" height="104" rx="8" fill="#1e6b5f"/><text x="352" y="18" fill="var(--teal)" font-weight="700">84</text><text x="352" y="150" fill="var(--muted)">Now</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PULSE -->
+  <section class="page" id="page-pulse" role="tabpanel" aria-labelledby="tab-pulse">
+    <div class="grid g4">
+      <div class="card metric alert"><div class="ico" aria-hidden="true">🚩</div><h3>Flag volume today</h3><strong>19</strong><p>New high-risk reviews flagged today.</p></div>
+      <div class="card metric"><div class="ico" aria-hidden="true">✅</div><h3>Auto-approved</h3><strong>143</strong><p>Trusted reviews published without manual review.</p></div>
+      <div class="card metric warn"><div class="ico" aria-hidden="true">📷</div><h3>Need more evidence</h3><strong>28</strong><p>Reviewers asked for a photo or clarification.</p></div>
+      <div class="card metric"><div class="ico" aria-hidden="true">⏱️</div><h3>Moderator SLA</h3><strong>4.2h</strong><p>Average time to resolve critical flags.</p></div>
+    </div>
+    <div class="brief" style="margin-top:20px">
+      <div><p class="lbl">WHAT THE AI SEES RIGHT NOW</p><p>Most flagged reviews this week are driven by <b>duplicate phrasing</b> and <b>missing evidence</b>, especially around high-traffic locations.</p></div>
+      <div class="btns"><button class="btn-lime" type="button" onclick="openSheet('photo')">Request photos</button></div>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <div class="card-head"><div><h2>Live moderation feed</h2><p class="card-sub">Latest decisions, newest first</p></div><button class="link" type="button" onclick="toast('Refreshing live feed…')">Refresh</button></div>
+      <ul class="feed">
+        <li><div><b>Northside Library</b> · detailed review with 3 photos<div class="t">2 min ago</div></div><span class="tag good">Auto-approved</span></li>
+        <li><div><b>Station Cafe</b> · photos don't match claims<div class="t">6 min ago</div></div><span class="tag warn">Photo requested</span></li>
+        <li><div><b>Riverina Library</b> · text matches 14 other reviews<div class="t">11 min ago</div></div><span class="tag alert">Escalated</span></li>
+        <li><div><b>Victoria Ave Pharmacy</b> · measurements and entrance detail<div class="t">18 min ago</div></div><span class="tag good">Auto-approved</span></li>
+        <li><div><b>Market Hall</b> · "easy access" with no detail<div class="t">25 min ago</div></div><span class="tag warn">Clarification sent</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- TRAJECTORY -->
+  <section class="page" id="page-trajectory" role="tabpanel" aria-labelledby="tab-trajectory">
+    <div class="grid g2">
+      <div class="card chart">
+        <div class="card-head"><div><h2>Review integrity trajectory</h2><p class="card-sub">Average trust score by month</p></div><button class="btn-line" type="button" id="projBtn">Project next month</button></div>
+        <svg viewBox="0 0 640 300" role="img" aria-label="Average trust score by month: April 65, May 70, June 76, July 80, August 84" id="trajSvg">
+          <g stroke="var(--line)"><line x1="40" y1="250" x2="620" y2="250"/><line x1="40" y1="180" x2="620" y2="180" stroke-dasharray="4 6"/><line x1="40" y1="110" x2="620" y2="110" stroke-dasharray="4 6"/></g>
+          <path d="M70 226 L185 196 L300 160 L415 136 L530 112 L530 250 L70 250Z" fill="var(--mint)"/>
+          <path d="M70 226 L185 196 L300 160 L415 136 L530 112" stroke="#1e6b5f" stroke-width="4" fill="none" stroke-linejoin="round"/>
+          <g fill="#1e6b5f"><circle cx="70" cy="226" r="7"/><circle cx="185" cy="196" r="7"/><circle cx="300" cy="160" r="7"/><circle cx="415" cy="136" r="7"/><circle cx="530" cy="112" r="8"/></g>
+          <g id="proj" style="display:none"><path d="M530 112 L610 97" stroke="#1e6b5f" stroke-width="3" stroke-dasharray="6 6" fill="none"/><circle cx="610" cy="97" r="7" fill="var(--card)" stroke="#1e6b5f" stroke-width="3"/><text x="610" y="80" text-anchor="middle" font-family="Poppins, Arial" font-size="14" font-weight="700" fill="var(--teal)">86?</text><text x="610" y="274" text-anchor="middle" font-family="Poppins, Arial" font-size="13" fill="var(--muted)">Sep</text></g>
+          <g font-family="Poppins, Arial" font-size="14" text-anchor="middle"><g font-weight="700" fill="var(--teal)"><text x="70" y="208">65</text><text x="185" y="178">70</text><text x="300" y="142">76</text><text x="415" y="118">80</text><text x="530" y="94">84</text></g><g fill="var(--muted)" font-size="13"><text x="70" y="274">Apr</text><text x="185" y="274">May</text><text x="300" y="274">Jun</text><text x="415" y="274">Jul</text><text x="530" y="274">Aug</text></g></g>
+        </svg>
+        <div class="insight">With targeted follow-ups and clearer evidence prompts, the council can reduce low-quality incentives while improving trust score trends across recurring contributors.</div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>What's next</h2></div>
+        <div class="next"><b>Stage 2 recommendation</b><p style="margin:8px 0 0">Pilot reviewer education prompts and automated photo requests in the top 3 hotspot areas first.</p></div>
+        <div class="stack" style="margin-top:18px">
+          <div><span class="tag alert">Chatswood CBD</span> <span class="card-sub">12 flags · duplicate text</span></div>
+          <div><span class="tag warn">Artarmon</span> <span class="card-sub">7 flags · missing photos</span></div>
+          <div><span class="tag warn">West Chatswood</span> <span class="card-sub">5 flags · generic wording</span></div>
+        </div>
+        <button class="btn-dark" type="button" style="margin-top:20px" onclick="openSheet('photo')">Start photo requests in hotspots</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACTIONS -->
+  <section class="page" id="page-actions" role="tabpanel" aria-labelledby="tab-actions">
+    <div class="card">
+      <div class="card-head"><div><h2>Bulk actions</h2><p class="card-sub">AI-drafted but human-approved templates to contact reviewers faster and more consistently</p></div></div>
+      <div class="grid g4">
+        <button class="act" type="button" onclick="openSheet('clarification')"><span class="em" aria-hidden="true">💬</span><h3>Request clarification</h3><p>Ask for missing detail before the reward is approved.</p></button>
+        <button class="act" type="button" onclick="openSheet('photo')"><span class="em" aria-hidden="true">📷</span><h3>Request photo evidence</h3><p>Ask for a photo of the entrance, ramp or toilet.</p></button>
+        <button class="act" type="button" onclick="openSheet('survey')"><span class="em" aria-hidden="true">📋</span><h3>Send short survey</h3><p>A 2-minute check on what the reviewer observed.</p></button>
+        <button class="act" type="button" onclick="openSheet('custom')"><span class="em" aria-hidden="true">✏️</span><h3>Custom outreach</h3><p>Start from a draft and write your own message.</p></button>
+      </div>
+    </div>
+    <div class="grid g2e" style="margin-top:20px">
+      <div class="card">
+        <div class="card-head"><h2>Operational tools</h2></div>
+        <div class="tools">
+          <button type="button" onclick="toast('Exporting flagged cases…')">Export flagged cases</button>
+          <button type="button" onclick="toast('Moderator assignment opened.')">Assign to moderator</button>
+          <button type="button" onclick="toast('Guideline reminder sent.')">Send reviewer guidance</button>
+          <button type="button" onclick="toast('Dashboard shared internally.')">Share dashboard</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>How follow-ups work</h2></div>
+        <ol style="margin:0;padding-left:20px;color:var(--muted)">
+          <li>AI picks the right template for each flagged review.</li>
+          <li>A lived-experience moderator checks and edits the draft.</li>
+          <li>The reviewer gets the message in their language.</li>
+          <li>The reward stays on hold until the review is verified.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>Clickable prototype for EnAccess Maps Challenge 2. All figures are demo data.</footer>
+
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="d-name" aria-hidden="true">
+  <button class="x" type="button" aria-label="Close review detail" onclick="closeAll()">✕</button>
+  <p class="kicker" style="margin:0">REVIEW DETAIL</p>
+  <h2 id="d-name">Riverina Library</h2>
+  <p class="card-sub" id="d-area">Chatswood CBD</p>
+  <p style="display:flex;gap:8px;flex-wrap:wrap"><span class="tag alert" id="d-tag">Duplicate text</span><span class="tag good" id="d-score">Trust score: 32</span></p>
+  <p id="d-summary"></p>
+  <div class="sig"><strong>Completeness</strong><span>Required fields are mostly filled, but descriptive accessibility detail is weak.</span></div>
+  <div class="sig"><strong>Authenticity signal</strong><span id="d-auth"></span></div>
+  <div class="sig"><strong>Recommended workflow</strong><span>Pause incentive approval and request supporting evidence before publishing.</span></div>
+  <div class="btns">
+    <button class="b-approve" type="button" onclick="toast('Review approved in demo mode.')">Approve review</button>
+    <button class="b-request" type="button" onclick="closeAll();openSheet('clarification')">Request more evidence</button>
+    <button class="b-flag" type="button" onclick="toast('Review sent to moderator queue.')">Escalate to human verification</button>
+  </div>
+</aside>
+
+<div class="modal" id="sheet" role="dialog" aria-modal="true" aria-labelledby="m-title" aria-hidden="true">
+  <button class="x" type="button" aria-label="Close follow-up" onclick="closeAll()">✕</button>
+  <h2 id="m-title">Bulk follow-up</h2>
+  <p class="card-sub">4 reviewers selected · request more evidence</p>
+  <div class="seg" id="templateTabs" role="group" aria-label="Template">
+    <button type="button" data-template="clarification">Clarification</button>
+    <button type="button" data-template="photo">Photo request</button>
+    <button type="button" data-template="survey">Survey</button>
+    <button type="button" data-template="custom">Custom</button>
+  </div>
+  <label class="f" for="subject">Subject</label>
+  <input id="subject">
+  <label class="f" for="message">Message</label>
+  <textarea id="message"></textarea>
+  <div class="langrow" style="margin-top:12px">
+    <div class="seg" id="langPills" role="group" aria-label="Language" style="margin:0">
+      <button type="button" data-lang="en">EN</button><button type="button" data-lang="zh">中文</button><button type="button" data-lang="ko">한국어</button>
+    </div>
+    <button class="link" type="button" onclick="toast('Auto-translate applied (demo).')">✦ Auto-translate</button>
+  </div>
+  <button class="send" type="button" onclick="closeAll();toast('Message sent to 4 selected reviewers (demo).')">Send to 4 reviewers</button>
+  <p class="note">This prototype shows AI-assisted drafts. In production, staff review and edit every message before it is sent.</p>
+</div>
+
+<div aria-live="polite" id="live" style="position:absolute;left:-9999px"></div>
+
+<script>
+const templates = {
+  clarification:{subject:"Quick follow-up on your EnAccess review",body:{
+    en:`Hi {{name}},\n\nThanks for your review on EnAccess Maps!\n\nTo keep our accessibility information accurate and helpful for the community, could you please share a little more detail or a photo to support your review of {{place_name}}? It only takes a minute.`,
+    zh:`您好 {{name}}，\n\n感谢您在 EnAccess Maps 上提交评论。\n\n为了让无障碍信息更准确、更有帮助，您是否可以补充更多细节，或上传一张与 {{place_name}} 相关的照片来支持您的评论？这只需要一分钟。`,
+    ko:`안녕하세요 {{name}}님,\n\nEnAccess Maps에 리뷰를 남겨주셔서 감사합니다.\n\n접근성 정보를 더 정확하고 유용하게 유지하기 위해 {{place_name}}에 대한 리뷰에 세부 정보나 사진 한 장을 추가해 주실 수 있을까요? 1분 정도면 됩니다.`}},
+  photo:{subject:"Could you add a photo to support your review?",body:{
+    en:`Hi {{name}},\n\nThanks for contributing to EnAccess Maps.\n\nA quick photo of the entrance, ramp, doorway, or accessible toilet at {{place_name}} would help us verify the review and keep the information reliable for the community.`,
+    zh:`您好 {{name}}，\n\n感谢您为 EnAccess Maps 做出贡献。\n\n如果您能上传一张 {{place_name}} 的入口、坡道、门口或无障碍洗手间的照片，将有助于我们验证评论并保持信息可靠。`,
+    ko:`안녕하세요 {{name}}님,\n\nEnAccess Maps에 기여해 주셔서 감사합니다.\n\n{{place_name}}의 출입구, 경사로, 문 너비 또는 장애인 화장실 사진을 추가해 주시면 리뷰 검증과 정보 신뢰도 향상에 큰 도움이 됩니다.`}},
+  survey:{subject:"2-minute accessibility review follow-up",body:{
+    en:`Hi {{name}},\n\nCouncil is reviewing recent accessibility submissions in {{suburb}}.\n\nCould you complete a short 2-minute follow-up to confirm the details you observed at {{place_name}}? Your response helps us improve trust in local accessibility data.`,
+    zh:`您好 {{name}}，\n\nCouncil 正在审核 {{suburb}} 最近的无障碍评论。\n\n您是否愿意完成一个 2 分钟的简短跟进问卷，以确认您在 {{place_name}} 观察到的情况？这将帮助我们提高本地无障碍数据的可信度。`,
+    ko:`안녕하세요 {{name}}님,\n\nCouncil에서는 {{suburb}} 지역의 최근 접근성 리뷰를 검토하고 있습니다.\n\n{{place_name}}에서 확인하신 내용을 검증하기 위해 2분 정도의 짧은 후속 설문에 응답해 주실 수 있을까요? 지역 접근성 데이터의 신뢰도를 높이는 데 도움이 됩니다.`}},
+  custom:{subject:"Follow-up regarding your review",body:{
+    en:`Hi {{name}},\n\nThank you for your contribution.\n\nWe are following up regarding your recent review of {{place_name}}. Please let us know if you can provide any extra detail, supporting photo, or clarification.`,
+    zh:`您好 {{name}}，\n\n感谢您的贡献。\n\n我们正在跟进您最近对 {{place_name}} 的评论。如果您愿意，请补充更多细节、支持照片或相关说明。`,
+    ko:`안녕하세요 {{name}}님,\n\n기여해 주셔서 감사합니다.\n\n{{place_name}}에 대한 최근 리뷰와 관련하여 후속 확인 중입니다. 추가 세부 정보, 사진 또는 설명을 제공해 주실 수 있으면 좋겠습니다.`}}
+};
+const reviews = [
+  {name:"Riverina Library",area:"Chatswood CBD",tag:"Duplicate text",cls:"alert",score:32,summary:"This review is highly similar to 14 other submissions created within 9 minutes. It contains repeated phrasing with minimal place-specific detail.",auth:"Potential incentive farming detected."},
+  {name:"Market Hall",area:"Victoria Ave",tag:"Generic wording",cls:"warn",score:41,summary:"The review states “easy access” and “good for everyone” but does not describe entrance grade, doorway width, or toilet access.",auth:"Low information density."},
+  {name:"Station Cafe",area:"Chatswood Station",tag:"Photo mismatch",cls:"alert",score:38,summary:"Uploaded images appear to show indoor seating but do not clearly support the accessibility claims made in the review.",auth:"Photo evidence is insufficient."},
+  {name:"Civic Centre",area:"Victoria Ave",tag:"Too fast",cls:"warn",score:46,summary:"The contributor completed a multi-field review in under 90 seconds, which is below the expected range for a quality accessibility assessment.",auth:"Behaviour risk detected."}
+];
+const $ = id => document.getElementById(id);
+let currentTemplate="clarification", currentLang="en", lastFocus=null;
+
+function toast(msg){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t);
+  $('live').textContent=msg;
+  setTimeout(()=>{t.style.transition='opacity .25s';t.style.opacity='0';},1900); setTimeout(()=>t.remove(),2300);
+}
+
+$('reviewRows').innerHTML = reviews.map((r,i)=>`<tr class="row" data-i="${i}"><td><div class="venue"><span class="thumb" aria-hidden="true"></span><div><b>${r.name}</b><span>${r.area}</span></div></div></td><td><span class="tag ${r.cls}">${r.tag}</span></td><td class="score">${r.score}</td><td><button class="open" type="button" data-i="${i}" aria-label="Open review for ${r.name}">Open</button></td></tr>`).join('');
+document.querySelectorAll('#reviewRows tr, #reviewRows .open').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();openReview(+el.dataset.i);}));
+
+function openReview(i){
+  const r=reviews[i]; lastFocus=document.activeElement;
+  $('d-name').textContent=r.name; $('d-area').textContent=r.area;
+  $('d-tag').textContent=r.tag; $('d-tag').className='tag '+r.cls;
+  $('d-score').textContent='Trust score: '+r.score; $('d-summary').textContent=r.summary; $('d-auth').textContent=r.auth;
+  show('drawer');
+}
+function show(id){ $('overlay').classList.add('show'); const el=$(id); el.classList.add('show'); el.setAttribute('aria-hidden','false'); setTimeout(()=>el.querySelector('.x').focus(),50); }
+function closeAll(){ ['drawer','sheet'].forEach(id=>{$(id).classList.remove('show');$(id).setAttribute('aria-hidden','true');}); $('overlay').classList.remove('show'); if(lastFocus) lastFocus.focus(); }
+function openSheet(name){ lastFocus=document.activeElement; if(name){currentTemplate=name;} syncSeg(); render(); if($('drawer').classList.contains('show')){$('drawer').classList.remove('show');} show('sheet'); }
+function render(){ const t=templates[currentTemplate]; $('subject').value=t.subject; $('message').value=t.body[currentLang]; }
+function syncSeg(){
+  document.querySelectorAll('#templateTabs button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.template===currentTemplate));
+  document.querySelectorAll('#langPills button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.lang===currentLang));
+}
+document.querySelectorAll('#templateTabs button').forEach(b=>b.addEventListener('click',()=>{currentTemplate=b.dataset.template;syncSeg();render();}));
+document.querySelectorAll('#langPills button').forEach(b=>b.addEventListener('click',()=>{currentLang=b.dataset.lang;syncSeg();render();}));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAll(); });
+
+const tabs=[...document.querySelectorAll('[role="tab"]')];
+function selectTab(btn){
+  tabs.forEach(b=>{const on=b===btn; b.setAttribute('aria-selected',on); b.tabIndex=on?0:-1; $('page-'+b.dataset.page).classList.toggle('active',on);});
+  btn.focus();
+}
+tabs.forEach((b,i)=>{
+  b.addEventListener('click',()=>selectTab(b));
+  b.addEventListener('keydown',e=>{ if(e.key==='ArrowRight') selectTab(tabs[(i+1)%tabs.length]); if(e.key==='ArrowLeft') selectTab(tabs[(i-1+tabs.length)%tabs.length]); });
+});
+document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-nav]').forEach(x=>x.removeAttribute('aria-current')); b.setAttribute('aria-current','page');
+  if(b.textContent!=='Council') toast(b.textContent+' section is outside this prototype.');
+}));
+$('range').addEventListener('change',e=>toast('Showing: '+e.target.value+' (demo data).'));
+$('projBtn').addEventListener('click',()=>{ const p=$('proj'); const on=p.style.display==='none'; p.style.display=on?'':'none'; $('projBtn').textContent=on?'Hide projection':'Project next month'; toast(on?'Projection: about 86 next month if follow-ups continue (demo).':'Projection hidden.'); });
+$('themeBtn').addEventListener('click',()=>{
+  const r=document.documentElement, dark=r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme: dark)').matches);
+  r.dataset.theme=dark?'light':'dark'; $('themeBtn').textContent=dark?'Dark mode':'Light mode';
+});
+syncSeg(); render();
+</script>
+</body>
+</html>
