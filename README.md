@@ -3,6 +3,7 @@
 **AI review integrity for accessibility data people can trust.**
 
 🔗 **Live prototype:** https://nana-naaa.github.io/accessproof/
+🔗 **Presentation:** AccessProof_Atlast.pdf
 
 Built by **Team Atlas** for EnAccess Maps, Challenge 2: AI-Powered Review Quality Checker.
 
